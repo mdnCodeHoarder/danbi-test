@@ -1058,6 +1058,23 @@ if (reversed == null) { reversed = false; }
 p.nominalBounds = new cjs.Rectangle(-28.2,-12.7,56.5,25.5);
 
 
+(lib.music_background = function(mode,startPosition,loop,reversed) {
+if (loop == null) { loop = true; }
+if (reversed == null) { reversed = false; }
+	var props = new Object();
+	props.mode = mode;
+	props.startPosition = startPosition;
+	props.labels = {};
+	props.loop = loop;
+	props.reversed = reversed;
+	cjs.MovieClip.apply(this,[props]);
+
+	this._renderFirstFrame();
+
+}).prototype = p = new cjs.MovieClip();
+p.nominalBounds = new cjs.Rectangle(0,0,0,0);
+
+
 (lib.mouth = function(mode,startPosition,loop,reversed) {
 if (loop == null) { loop = true; }
 if (reversed == null) { reversed = false; }
@@ -49946,6 +49963,7 @@ if (reversed == null) { reversed = false; }
 	this.actionFrames = [0];
 	// timeline functions:
 	this.frame_0 = function() {
+		playSound("music_gameplaywav",-1);
 		var root = this;
 		var countTrue = 0;
 		var countFalse = 0;
@@ -49955,6 +49973,7 @@ if (reversed == null) { reversed = false; }
 		var kecoa = 0;
 		var actionInProgress = false;
 		var isFirstRandomFrameShown = false;
+		var backgroundSound = createjs.Sound.play("music_background");
 		
 		// =====||===== Render Random Quiz =====||=====
 		
@@ -49976,13 +49995,23 @@ if (reversed == null) { reversed = false; }
 			root.gotoAndStop(randomFrame);
 		
 			if (!isFirstRandomFrameShown) {
-				setTimeout(function () {
-					root.cursor_pointer.visible = true;
-					root.cursor_pointer_2.visible = true;
-					root.cursor_pointer_3.visible = true;
-					root.cursor_pointer_4.visible = true;
-				}, 2000)
-				isFirstRandomFrameShown = true;
+				if (countTrue === 0) {
+					setTimeout(function () {
+						root.cursor_pointer.visible = true;
+						root.cursor_pointer_2.visible = true;
+						root.cursor_pointer_3.visible = true;
+						root.cursor_pointer_4.visible = true;
+					}, 2000)
+					isFirstRandomFrameShown = true;
+				} else {
+					setTimeout(function () {
+						root.cursor_pointer.visible = true;
+						root.cursor_pointer_2.visible = true;
+						root.cursor_pointer_3.visible = true;
+						root.cursor_pointer_4.visible = true;
+					}, 2000)
+					isFirstRandomFrameShown = true;
+				}
 			} else {
 				root.cursor_pointer.visible = false;
 				root.cursor_pointer_2.visible = false;
@@ -50021,12 +50050,13 @@ if (reversed == null) { reversed = false; }
 								.to({
 									x: root.robot_idle.x + 200
 								}, 1000, createjs.Ease.getPowInOut(2));
-							tween.call(function(){
+							tween.call(function () {
 								root.robot_idle.visible = true;
 								root.robot_boost.visible = false;
 							})
 							setTimeout(function () {
 								startQuiz();
+								//playBackgroundSound();
 								root.robot_idle.x = 300;
 								root.robot_boost.x = 300;
 							}, 2000)
@@ -50041,6 +50071,22 @@ if (reversed == null) { reversed = false; }
 		}
 		
 		// =====||===== End Random Render =====||=====
+		
+		// =====||===== Sound Settings =====||=====
+		backgroundSound.volume = 0.3; // Sesuaikan dengan volume yang diinginkan
+		console.log(`sound`, backgroundSound)
+		// Fungsi untuk memulai latar belakang suara
+		//function playBackgroundSound() {
+		//	backgroundSound.play();
+		//}
+		
+		//function stopBackgroundSound() {
+		//    backgroundSound.stop();
+		//}
+		
+		// Panggil fungsi playBackgroundSound() saat diperlukan, misalnya saat proyek dimuat
+		//playBackgroundSound();
+		// =====||===== End Sound Settings =====||=====
 		
 		// =====||===== Assests State =====||=====
 		this.scene_lose.visible = false;
@@ -50134,6 +50180,7 @@ if (reversed == null) { reversed = false; }
 		// =====||===== Event Listener =====||=====
 		this.skip_tutorial.addEventListener("click", function () {
 			startQuiz();
+			backgroundSound.play();
 		})
 		this.restart_quiz.addEventListener("click", restartQuiz)
 		this.restart_quiz_lose.addEventListener("click", restartQuiz)
@@ -50223,6 +50270,8 @@ if (reversed == null) { reversed = false; }
 			root.ready_start.visible = true;
 			setTimeout(function () {
 				showRandomFrame();
+				//playBackgroundSound();
+				backgroundSound.play();
 				root.bg_dark.visible = false;
 				actionInProgress = false;
 				root.robot_idle.visible = true;
@@ -50314,10 +50363,9 @@ if (reversed == null) { reversed = false; }
 		
 				root.robot_boost.visible = true;
 				root.robot_sparkle.visible = false;
+				root.robot_idle.visible = false;
 				tween.call(function () {
 					showRandomFrame();
-		
-		
 					root.kelinci_idle.visible = false;
 					root.kelinci_react.visible = false;
 					root.kelinci_shock.visible = true;
@@ -50331,11 +50379,12 @@ if (reversed == null) { reversed = false; }
 			} else if (countTrue === 5) {
 				var preWin = () => {
 					root.gotoAndStop(7);
-					root.kelinci_react.stop();
-					root.robot_boost.stop();
+					//root.kelinci_react.stop();
+					//root.robot_boost.stop();
 					root.background_loop.stop();
 					//root.robot_catch.visible = true;
-					root.robot_boost.visible = false;
+					root.robot_boost.visible = true;
+					root.robot_sparkle.visible = false;
 					root.kelinci_react.visible = false;
 					//root.kelinci_shock.visible = false;
 		
@@ -50482,17 +50531,32 @@ if (reversed == null) { reversed = false; }
 							showRandomFrame();
 							root.bar_love.gotoAndStop(heart);
 						}
-						//root.kelinci_idle.visible = true;
-						root.kelinci_shock.visible = true;
-						root.kelinci_laugh.visible = false;
-						//root.robot_idle.visible = true;
-						root.robot_sparkle.visible = true;
-						root.robot_fall.visible = false;
-						root.kelinci_laugh.stop();
-						root.robot_fall.stop();
-						root[cardName].visible = false;
-						actionInProgress = false; // Tindakan sudah selesai
-						root.masking_pg.visible = false;
+						if (countTrue > 2 && countTrue < 5) {
+							root.kelinci_idle.visible = false;
+							root.kelinci_shock.visible = true;
+							root.kelinci_laugh.visible = false;
+							//root.robot_idle.visible = true;
+							root.robot_sparkle.visible = true;
+							root.robot_fall.visible = false;
+							root.kelinci_laugh.stop();
+							root.robot_fall.stop();
+							root[cardName].visible = false;
+							actionInProgress = false; // Tindakan sudah selesai
+							root.masking_pg.visible = false;
+						} else {
+							root.kelinci_idle.visible = true;
+							root.kelinci_shock.visible = false;
+							root.kelinci_laugh.visible = false;
+							//root.robot_idle.visible = true;
+							root.robot_sparkle.visible = true;
+							root.robot_fall.visible = false;
+							root.kelinci_laugh.stop();
+							root.robot_fall.stop();
+							root[cardName].visible = false;
+							actionInProgress = false; // Tindakan sudah selesai
+							root.masking_pg.visible = false;
+						}
+		
 					});
 				}
 		
@@ -50546,10 +50610,18 @@ if (reversed == null) { reversed = false; }
 		}
 		
 		onResize();
+		playSound("music_gameplaywav");
 	}
 
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(20));
+
+	// music_background
+	this.music_background = new lib.music_background();
+	this.music_background.name = "music_background";
+	this.music_background.setTransform(960,540);
+
+	this.timeline.addTween(cjs.Tween.get(this.music_background).wait(20));
 
 	// scene_lose
 	this.restart_quiz_lose = new lib.button_skip_tutorial();
@@ -51047,7 +51119,8 @@ lib.properties = {
 		{src:"images/questionbox_pink04.png", id:"questionbox_pink04"},
 		{src:"images/questionbox_pink05.png", id:"questionbox_pink05"},
 		{src:"images/ready_text.png", id:"ready_text"},
-		{src:"images/start_text.png", id:"start_text"}
+		{src:"images/start_text.png", id:"start_text"},
+		{src:"sounds/music_gameplaywav.mp3", id:"music_gameplaywav"}
 	],
 	preloads: []
 };
