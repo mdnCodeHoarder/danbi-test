@@ -54308,6 +54308,8 @@ if (reversed == null) { reversed = false; }
 		var firstGame = true;
 		var autoStartTimeout;
 		
+		createjs.Sound.stop("BGM_GAMEPLAY");
+		
 		var props = new createjs.PlayPropsConfig().set({
 			delay: 1000,
 			loop: -1,
@@ -54428,7 +54430,7 @@ if (reversed == null) { reversed = false; }
 								})
 								setTimeout(function () {
 									startQuiz();
-									//createjs.Sound.play("BGM_GAMEPLAY");
+									createjs.Sound.play("BGM_GAMEPLAY");
 									root.robot_idle.x = 300;
 									root.robot_boost.x = 300;
 								}, 2000)
